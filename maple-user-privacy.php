@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Maple – User Privacy
  * Description: Stops logged-out visitors from listing a site's user accounts. Maple Creative standard hardening.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      Maple Creative
  *
  * Covers the same two routes as Stop User Enumeration, plus the leaks it leaves:
@@ -16,6 +16,11 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+// Per-site opt-out: define( 'MAPLE_USER_PRIVACY_DISABLE', true ); in wp-config.php.
+if ( defined( 'MAPLE_USER_PRIVACY_DISABLE' ) && MAPLE_USER_PRIVACY_DISABLE ) {
+	return;
+}
 
 add_filter( 'rest_endpoints', function ( $endpoints ) {
 	if ( is_user_logged_in() ) {

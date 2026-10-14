@@ -41,15 +41,28 @@ Ryan approved it on 2026-10-14. The full discussion is in Notion, in the task "R
 
 ## How it's deployed
 
-The file is registered as a **Pressable account mu-plugin** (Pressable API / MCP `create_account_mu_plugin`, set to apply to both existing and future sites). Pressable then installs it on each site as a must-use plugin.
+We roll it out in stages so one bad assumption can't hit every site at once:
 
-The registered URL points at a **version tag**, not `main`, so changes here never reach live sites by accident:
+- **New sites:** registered as a **Pressable account mu-plugin** (Pressable API / MCP `create_account_mu_plugin`) with *future sites* turned on and *existing sites* turned off. Every new site gets it automatically.
+- **Existing sites:** installed in waves with WP-CLI, by writing the file to `wp-content/mu-plugins/maple-user-privacy.php`. First a pilot (buildwithmaple.com plus a staging copy), then a canary of about 5 sites with different setups, then about 25, then the rest. Each wave is checked from outside (see below), and PHP fatals are watched before the next wave starts. Before rollout we searched every site's code for front-end use of the routes this blocks.
+
+The account registration URL points at a **version tag**, not `main`, so changes here never reach live sites by accident:
 
 ```
-https://raw.githubusercontent.com/Maple-Creative/maple-mu-plugins/v1.0.0/maple-user-privacy.php
+https://raw.githubusercontent.com/Maple-Creative/maple-mu-plugins/v1.0.1/maple-user-privacy.php
 ```
 
-The registration covers every live site on the account, including staging copies and the few non-care-plan sites, and not just care-plan sites. That was decided on purpose.
+All live sites on the account are in scope, including staging copies and the few non-care-plan sites, not just care-plan sites. That was decided on purpose.
+
+### Turning it off for one site
+
+Add this to that site's `wp-config.php`:
+
+```php
+define( 'MAPLE_USER_PRIVACY_DISABLE', true );
+```
+
+The plugin then does nothing on that site. The file stays in place, so a later re-install won't silently turn it back on. Note the reason in the site's Notion record.
 
 ## Checking a site
 
@@ -69,6 +82,6 @@ Use a full browser user agent. Pressable's edge returns **429** to a bare `Mozil
 2. Register the new tag's raw URL with Pressable, then remove the old registration. Using a new URL for each version makes every update a deliberate step; don't rely on Pressable re-fetching an existing URL.
 3. Spot-check a few sites with the commands above.
 
-**To roll back:** register the previous tag's URL. **To remove it everywhere:** delete the account mu-plugin in Pressable and spot-check a few sites to confirm it's gone (`wp plugin list --status=must-use`).
+**To roll back:** register the previous tag's URL. **To remove it everywhere:** delete the account mu-plugin in Pressable, delete `wp-content/mu-plugins/maple-user-privacy.php` from the sites it was installed on by WP-CLI, and spot-check a few sites to confirm it's gone (`wp plugin list --status=must-use`).
 
-**If one site needs an exception** (e.g. a front-end feature that reads the public users API), it's safer to add a small site-specific mu-plugin that removes the relevant filter than to fork this file.
+**If one site needs an exception** (e.g. a front-end feature that reads the public users API), use the off switch above rather than forking this file.
