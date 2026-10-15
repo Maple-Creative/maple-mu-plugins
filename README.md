@@ -52,6 +52,8 @@ The account registration URL points at a **version tag**, not `main`, so changes
 https://raw.githubusercontent.com/Maple-Creative/maple-mu-plugins/v1.0.1/maple-user-privacy.php
 ```
 
+**Status (2026-10-15):** v1.0.1 is installed on every live site on the account (182 sites, in waves on 2026-10-14 and 10-15), and Pressable account mu-plugin #38 is registered for future sites. The two Halt the Harm sites and their styleguide copy used to run Stop User Enumeration; it was removed once this plugin was in place.
+
 All live sites on the account are in scope, including staging copies and the few non-care-plan sites, not just care-plan sites. That was decided on purpose.
 
 ### Turning it off for one site
